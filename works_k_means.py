@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 # Load the image
-img = Image.open('curve3.jpg').convert('L')  # Convert image to grayscale
+img = Image.open('curve1.jpg').convert('L')  # Convert image to grayscale
 
 # Convert the image to a matrix
 pixels = img.load()
@@ -85,12 +85,123 @@ num_clusters = 100  # Adjust the number of clusters as needed
 cluster_centers = kmeans(points_array, num_clusters)
 
 # Display the resulting image with detected points
-plt.imshow(combined_edges, cmap='gray')
-plt.title('Detected Edges with Reduced Points using Custom KMeans')
-plt.axis('off')  # Hide axes
+
+
+
+
+def find_closest_point(current_point, remaining_points):
+    min_distance = float('inf')
+    closest_point = None
+    closest_index = -1
+
+    for i, point in enumerate(remaining_points):
+        dist = np.linalg.norm(current_point - point)
+        if dist < min_distance:
+            min_distance = dist
+            closest_point = point
+            closest_index = i
+
+    return closest_point, closest_index
+
+def create_closed_loop(points):
+    remaining_points = points.copy()
+    ordered_points = [remaining_points.pop(0)]
+
+    while remaining_points:
+        current_point = ordered_points[-1]
+        closest_point, closest_index = find_closest_point(current_point, remaining_points)
+
+        if closest_point is not None:
+            ordered_points.append(closest_point)
+            remaining_points.pop(closest_index)
+        else:
+            break
+
+    # Check if the loop is closed and add the starting point if needed
+    if not np.array_equal(ordered_points[0], ordered_points[-1]):
+        ordered_points.append(ordered_points[0])
+
+    return ordered_points
+
+
+
+ordered_points = create_closed_loop(cluster_centers)
+
+# 'ordered_points' now contains the sequence of points forming the closed loop
+ordered_points = np.array(ordered_points)
+points = np.array(points)
+# Plotting the points forming the closed loop
+plt.figure(figsize=(8, 6))
+
+def segment_points(points):
+    segmented_arrays = []
+    start_index = 0
+    increasing = None
+
+    for i in range(1, len(points)):
+        if increasing is None:
+            if points[i, 0] > points[i - 1, 0]:
+                increasing = True
+            elif points[i, 0] < points[i - 1, 0]:
+                increasing = False
+
+        if increasing is not None:
+            if (increasing and points[i, 0] < points[i - 1, 0]) or (not increasing and points[i, 0] > points[i - 1, 0]):
+                segmented_arrays.append(points[start_index:i])
+                start_index = i
+                increasing = not increasing
+
+    # Add the last segment
+    segmented_arrays.append(points[start_index:])
+
+    return segmented_arrays
+
+# Segmented arrays based on changes in x-coordinate
+segmented_arrays = segment_points(ordered_points)
+
+# Plotting each sub-array with a different color
+for idx, segment in enumerate(segmented_arrays, start=1):
+    plt.scatter(segment[:, 0], segment[:, 1], label=f'Segment {idx}')
+
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.title('Segments based on X-coordinate')
+# plt.legend()
+plt.show()
+
+
+
+
+# gradient = np.linspace(0, 1, len(ordered_points))
+
+# # Create a colormap using the gradient (from green to blue)
+# colors = plt.cm.Blues(gradient)
+
+# # Scatter plot with gradient colors
+# scatter = plt.scatter(
+#     [point[0] for point in ordered_points],
+#     [point[1] for point in ordered_points],
+#     color='white',  # Set color to white
+#     edgecolor='white',  # Add black edges for better visibility
+#     label='Ordered Points',
+#     s = 10
+# )
+
+
+# for i, point in enumerate(ordered_points):
+#     plt.text(point[0], point[1], str(i + 1), ha='center', va='center', fontsize=8)
+
+# # plt.plot(ordered_points[:, 0], ordered_points[:, 1], color='red', linestyle='-', label='Closed Loop')
+# plt.title('Closed Loop of Ordered Points')
+# plt.xlabel('X-axis')
+# plt.ylabel('Y-axis')
+# plt.legend()
+# plt.grid(True)
+# plt.show()
+
 
 # Plot the cluster centers as points on the graph
-plt.scatter([center[0] for center in cluster_centers], [center[1] for center in cluster_centers], color='red', s=2)  # Adjust the size 's' for point markers
+# plt.scatter([center[0] for center in cluster_centers], [center[1] for center in cluster_centers], color='red', s=2)  # Adjust the size 's' for point markers
 
 print(cluster_centers)
-plt.show()
+# plt.show()
