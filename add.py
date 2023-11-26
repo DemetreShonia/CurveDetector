@@ -2,9 +2,10 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import random
 import numpy as np
+from sklearn.cluster import KMeans
 
 # Load the image
-img = Image.open('curve3.jpg').convert('L')  # Convert image to grayscale
+img = Image.open('handwritten_curve.jpg').convert('L')  # Convert image to grayscale
 
 # Convert the image to a matrix
 pixels = img.load()
@@ -54,43 +55,23 @@ for y in range(height):
         if combined_edges.getpixel((x, y)) > threshold:
             points.append((x, y))
 
-def kmeans(points, k, max_iterations=10):
-    points_list = list(points)  # Convert points to a list explicitly
-    centroids = random.sample(points_list, k)
-    for _ in range(max_iterations):
-        clusters = {i: [] for i in range(k)}
-
-        # Assign each point to the nearest centroid
-        for point in points_list:
-            distances = [np.linalg.norm(np.array(point) - np.array(centroid)) for centroid in centroids]
-            cluster_idx = np.argmin(distances)
-            clusters[cluster_idx].append(point)
-
-        # Update centroids
-        new_centroids = [np.mean(clusters[i], axis=0) for i in range(k)]
-
-        # If centroids have not changed, stop
-        if np.allclose(centroids, new_centroids):
-            break
-
-        centroids = new_centroids
-
-    return centroids
-
-# Convert points to a NumPy array
+# Convert points to a NumPy array for KMeans
 points_array = np.array(points)
+print(len(points_array))
+# Apply KMeans clustering
+num_clusters = 5  # Adjust the number of clusters as needed
+kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+kmeans.fit(points_array)
+cluster_centers = kmeans.cluster_centers_.astype(int)
 
-# Apply custom KMeans clustering
-num_clusters = 100  # Adjust the number of clusters as needed
-cluster_centers = kmeans(points_array, num_clusters)
-
+print(len(cluster_centers))
 # Display the resulting image with detected points
 plt.imshow(combined_edges, cmap='gray')
-plt.title('Detected Edges with Reduced Points using Custom KMeans')
+plt.title('Detected Edges with Reduced Points using KMeans')
 plt.axis('off')  # Hide axes
 
-# Plot the cluster centers as points on the graph
-plt.scatter([center[0] for center in cluster_centers], [center[1] for center in cluster_centers], color='red', s=2)  # Adjust the size 's' for point markers
-
 print(cluster_centers)
+# Plot the cluster centers as points on the graph
+plt.scatter(cluster_centers[:, 0], cluster_centers[:, 1], color='red', s=2)  # Adjust the size 's' for point markers
+
 plt.show()
