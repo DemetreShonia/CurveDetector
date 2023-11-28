@@ -6,7 +6,7 @@ from edge_detection import EdgeDetection
 from clustering import kmeans, find_closest_point, create_closed_loop, segment_points
 
 # Load the image and perform edge detection
-img_processor = ImageProcessor('curve1.jpg')
+img_processor = ImageProcessor('curve2.jpg')
 pixels = img_processor.get_image_matrix()
 width, height = img_processor.get_image_size()
 
@@ -46,13 +46,7 @@ for idx, segment in enumerate(segmented_arrays, start=1):
         
 
 
-for segment in segmented_arrays:
-    segment = segment[np.argsort(segment[:, 0])]
-    x = segment[:, 0]
-    y = segment[:, 1]
-
-    # Perform linear piecewise approximation for each segment
-
+def piecewise_linear_approximation(x, y):
     for i in range(len(x) - 1):
         x_start, x_end = x[i], x[i + 1]
         y_start, y_end = y[i], y[i + 1]
@@ -64,7 +58,43 @@ for segment in segmented_arrays:
         y_interpolated = slope * x_interpolated + intercept
 
         plt.plot(x_interpolated, y_interpolated, color='red')
+    
     plt.scatter(x, y)
+
+
+for segment in segmented_arrays:
+    segment = segment[np.argsort(segment[:, 0])]
+    x = segment[:, 0]
+    y = segment[:, 1]
+
+    # Perform linear piecewise approximation for each segment
+
+    # piecewise_linear_approximation(x, y)
+
+    # Fit a polynomial curve to each segment using the least squares method
+    # Create the Vandermonde matrix
+    degree = 3
+    A = np.vander(x, degree + 1, increasing=True)
+
+    # Check matrix rank
+    if np.linalg.matrix_rank(A) == A.shape[1]:  # Check if matrix is full rank
+        # Solve the normal equations to obtain coefficients
+        ATA = np.dot(A.T, A)
+        ATy = np.dot(A.T, y)
+        coeffs = np.linalg.solve(ATA, ATy)
+
+        # Generate points for smooth curve display
+        x_smooth = np.linspace(np.min(x), np.max(x), 100)
+        A_smooth = np.vander(x_smooth, degree + 1, increasing=True)
+        y_smooth = np.dot(A_smooth, coeffs)
+
+        # Plot each segment's points and the fitted polynomial curve
+        plt.scatter(x, y)
+        plt.plot(x_smooth, y_smooth, color='red')
+    else:
+        print("Matrix is not full rank, skipping segment fitting.")
+
+    # THIS PART IS WHERE ALGORITHM WILL CHANGE (STRATEGY)
 
 
 plt.xlabel('X-axis')
