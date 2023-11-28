@@ -6,7 +6,7 @@ from edge_detection import EdgeDetection
 from clustering import kmeans, find_closest_point, create_closed_loop, segment_points
 
 # Load the image and perform edge detection
-img_processor = ImageProcessor('curve2.jpg')
+img_processor = ImageProcessor('curve1.jpg')
 pixels = img_processor.get_image_matrix()
 width, height = img_processor.get_image_size()
 
@@ -39,6 +39,33 @@ plt.figure(figsize=(8, 6))
 segmented_arrays = segment_points(np.array(ordered_points))
 for idx, segment in enumerate(segmented_arrays, start=1):
     plt.scatter(segment[:, 0], segment[:, 1], label=f'Segment {idx}')
+
+
+    for j, point in enumerate(segment):
+        plt.text(point[0], point[1], str(j + 1), ha='center', va='center', fontsize=8)
+        
+
+
+for segment in segmented_arrays:
+    segment = segment[np.argsort(segment[:, 0])]
+    x = segment[:, 0]
+    y = segment[:, 1]
+
+    # Perform linear piecewise approximation for each segment
+
+    for i in range(len(x) - 1):
+        x_start, x_end = x[i], x[i + 1]
+        y_start, y_end = y[i], y[i + 1]
+
+        slope = (y_end - y_start) / (x_end - x_start)
+        intercept = y_start - slope * x_start
+
+        x_interpolated = np.linspace(x_start, x_end, 100)
+        y_interpolated = slope * x_interpolated + intercept
+
+        plt.plot(x_interpolated, y_interpolated, color='red')
+    plt.scatter(x, y)
+
 
 plt.xlabel('X-axis')
 plt.ylabel('Y-axis')

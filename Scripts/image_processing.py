@@ -2,7 +2,7 @@ from PIL import Image
 
 class ImageProcessor:
     def __init__(self, image_path):
-        self.image = Image.open(image_path).convert('L')
+        self.image = Image.open(f"Images\{image_path}").convert('L')
         self.width, self.height = self.image.size
 
     def get_image_matrix(self):
