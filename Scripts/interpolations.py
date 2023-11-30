@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class InterpolationStrategy:
     def interpolate(self, x, y):
         pass
@@ -26,19 +27,15 @@ class LeastSquaresInterpolation(InterpolationStrategy):
         degree = 3
         A = np.vander(x, degree + 1, increasing=True)
 
-        # Check matrix rank
-        if np.linalg.matrix_rank(A) == A.shape[1]:  # Check if matrix is full rank
-            # Solve the normal equations to obtain coefficients
+        if np.linalg.matrix_rank(A) == A.shape[1]: 
             ATA = np.dot(A.T, A)
             ATy = np.dot(A.T, y)
             coeffs = np.linalg.solve(ATA, ATy)
 
-            # Generate points for smooth curve display
             x_smooth = np.linspace(np.min(x), np.max(x), 100)
             A_smooth = np.vander(x_smooth, degree + 1, increasing=True)
             y_smooth = np.dot(A_smooth, coeffs)
 
-            # Plot each segment's points and the fitted polynomial curve
             plt.scatter(x, y)
             plt.plot(x_smooth, y_smooth, color='red')
         else:
@@ -55,7 +52,6 @@ class CubicSplineInterpolation(InterpolationStrategy):
             h = np.diff(x)
             delta = np.diff(y) / h
 
-            # Construct the tridiagonal matrix
             matrix = np.zeros((n, n))
             matrix[0, 0] = 1
             matrix[n - 1, n - 1] = 1
@@ -68,10 +64,8 @@ class CubicSplineInterpolation(InterpolationStrategy):
             rhs = np.zeros(n)
             rhs[1:-1] = 3 * (delta[1:] - delta[:-1])
 
-            # Solve the linear system to find the coefficients
             c = np.linalg.solve(matrix, rhs)
 
-            # Calculate the remaining coefficients
             b = np.zeros(n - 1)
             d = np.zeros(n - 1)
             for i in range(n - 1):
@@ -97,11 +91,10 @@ class CubicSplineInterpolation(InterpolationStrategy):
         
         coefficients = cubic_spline_interpolation(x, y)
     
-        # Interpolate values within the current segment
         min_x = np.min(x)
         max_x = np.max(x)
         
-        num_interpolation_points = 100  # Increase the number of points for smoother plots
+        num_interpolation_points = 200  # Increase the number of points for smoother plots
         interpolated_xs = np.linspace(min_x, max_x, num_interpolation_points)
         
         interpolated_values = []
@@ -109,11 +102,9 @@ class CubicSplineInterpolation(InterpolationStrategy):
             interpolated_value = cubic_spline_interpolate(x, coefficients, x_interpolate)
             interpolated_values.append(interpolated_value)
         
-        # Plot the original segment and the interpolated values
         plt.plot(x, y, 'o', label='Original Segment')
         plt.plot(interpolated_xs, interpolated_values, label='Interpolated Values')
         
-
 
 class Interpolator:
     def __init__(self, strategy):

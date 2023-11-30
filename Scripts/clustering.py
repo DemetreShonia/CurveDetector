@@ -2,21 +2,18 @@ import random
 import numpy as np
 
 def kmeans(points, k, max_iterations=10):
-    points_list = list(points)  # Convert points to a list explicitly
+    points_list = list(points) 
     centroids = random.sample(points_list, k)
     for _ in range(max_iterations):
         clusters = {i: [] for i in range(k)}
 
-        # Assign each point to the nearest centroid
         for point in points_list:
             distances = [np.linalg.norm(np.array(point) - np.array(centroid)) for centroid in centroids]
             cluster_idx = np.argmin(distances)
             clusters[cluster_idx].append(point)
 
-        # Update centroids
         new_centroids = [np.mean(clusters[i], axis=0) for i in range(k)]
 
-        # If centroids have not changed, stop
         if np.allclose(centroids, new_centroids):
             break
 
@@ -53,7 +50,6 @@ def create_closed_loop(points):
         else:
             break
 
-    # Check if the loop is closed and add the starting point if needed
     if not np.array_equal(ordered_points[0], ordered_points[-1]):
         ordered_points.append(ordered_points[0])
 
@@ -79,7 +75,6 @@ def segment_points(points):
                 start_index = i
                 increasing = not increasing
 
-    # Add the last segment
     segmented_arrays.append(points[start_index:])
 
     return segmented_arrays
