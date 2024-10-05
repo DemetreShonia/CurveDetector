@@ -17,10 +17,8 @@ This project extracts curve-related data from hand-drawn images, interpolates th
 ### 📷 Some screenshots from docs
 You can check documentation for full details! [NP Documentation.pdf](https://github.com/user-attachments/files/17265729/CP1.Documentation.pdf)
 
-![Original Curve](https://github.com/user-attachments/assets/57268408-15bb-480e-ab34-93fc46d17a5c)
-![Working on](https://github.com/user-attachments/assets/8e923042-0b64-4332-a16d-c6a1a3c30ab2)
-![Fit](https://github.com/user-attachments/assets/3d54c60a-e231-43b5-803a-43c2a69092f1)
-![Plotted](https://github.com/user-attachments/assets/156f2448-cabe-4478-bba2-72f4b7974e6e)
+![Compare](https://github.com/user-attachments/assets/ae81496a-fe6d-426b-a85c-59ee460b6dad)
+
 
 ### Features 🌟
 - Custom edge detection for extracting unordered points from images.
