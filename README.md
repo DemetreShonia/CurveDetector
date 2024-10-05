@@ -18,6 +18,7 @@ This project extracts curve-related data from hand-drawn images, interpolates th
 You can check documentation for full details! [NP Documentation.pdf](https://github.com/user-attachments/files/17265729/CP1.Documentation.pdf)
 
 ![Compare](https://github.com/user-attachments/assets/ae81496a-fe6d-426b-a85c-59ee460b6dad)
+![Plotted](https://github.com/user-attachments/assets/b7c7cbc2-35c3-48fb-99ab-1c6712958488)
 
 
 ### Features 🌟
